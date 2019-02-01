@@ -4,7 +4,7 @@
 import re
 from bs4 import BeautifulSoup
 
-from weatherapp.core import config
+from weatherapp.accu import config
 from weatherapp.core.abstract import WeatherProvider
 
 
