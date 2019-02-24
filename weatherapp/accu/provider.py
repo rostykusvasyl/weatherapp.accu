@@ -77,33 +77,64 @@ class AccuProvider(WeatherProvider):
 
         # find the <div> container with the information we need
         soup = BeautifulSoup(page, 'html.parser')
-        tag_container = \
-            soup.find(class_=re.compile("(day|night) current first cl"))
-        if tag_container:
-            current_day_url = tag_container.find('a').attrs['href']
-            if current_day_url:
-                current_day = self.get_page_source(current_day_url)
-                current_day_page = BeautifulSoup(current_day, 'html.parser')
-                if current_day_page:
-                    weather_details = current_day_page.find(id="detail-now")
-                    temp_info = weather_details.find('span',
-                                                     class_="large-temp")
-                    if temp_info:
-                        weather_info['temp'] = temp_info.get_text()
-                    realfeel = weather_details.find(class_="small-temp")
-                    if realfeel:
-                        weather_info['feels_like'] = realfeel.get_text()
-                    cond_info = weather_details.find('span', class_="cond")
-                    if cond_info:
-                        weather_info['cond'] = cond_info.get_text()
-                    wind_direction_tag = weather_details.find(class_="wind")
-                    wind_speed_tag = weather_details.find("strong")
-                    if wind_direction_tag or wind_speed_tag:
-                        wind_direction = ' '.join(map(lambda t: t.strip(),
-                                                      wind_direction_tag))
-                        wind_speed = wind_speed_tag.get_text()
-                        weather_info['wind'] = wind_direction + ' ' +\
-                            wind_speed
+        if not self.app.options.tomorrow:
+            tag_container = \
+                soup.find(class_=re.compile("(day|night) current first cl"))
+            if tag_container:
+                current_day_url = tag_container.find('a').attrs['href']
+                if current_day_url:
+                    current_day = self.get_page_source(current_day_url)
+                    current_day_page = BeautifulSoup(current_day,
+                                                     'html.parser')
+                    if current_day_page:
+                        weather_details = \
+                            current_day_page.find(id="detail-now")
+                        temp_info = weather_details.find('span',
+                                                         class_="large-temp")
+                        if temp_info:
+                            weather_info['temp'] = temp_info.get_text()
+                        realfeel = weather_details.find(class_="small-temp")
+                        if realfeel:
+                            weather_info['feels_like'] = realfeel.get_text()
+                        cond_info = weather_details.find('span', class_="cond")
+                        if cond_info:
+                            weather_info['cond'] = cond_info.get_text()
+                        wind_direction_tag = \
+                            weather_details.find(class_="wind")
+                        wind_speed_tag = weather_details.find("strong")
+                        if wind_direction_tag or wind_speed_tag:
+                            wind_direction = ' '.join(map(lambda t: t.strip(),
+                                                          wind_direction_tag))
+                            wind_speed = wind_speed_tag.get_text()
+                            weather_info['wind'] = wind_direction + ' ' +\
+                                wind_speed
+        else:
+            tag_container = \
+                soup.find(class_="day hv cl")
+            if tag_container:
+                current_day_url = tag_container.find('a').attrs['href']
+                if current_day_url:
+                    current_day = self.get_page_source(current_day_url)
+                    current_day_page = BeautifulSoup(current_day,
+                                                     'html.parser')
+                    if current_day_page:
+                        weather_details = \
+                            current_day_page.find(id="detail-day-night")
+                        temp_info = weather_details.find('span',
+                                                         class_="large-temp")
+                        if temp_info:
+                            weather_info['temp'] = temp_info.get_text()
+                        realfeel = weather_details.find('span',
+                                                        class_="realfeel")
+                        if realfeel:
+                            weather_info['feels_like'] = realfeel.get_text()
+                        cond_info = weather_details.find(class_="cond")
+                        if cond_info:
+                            weather_info['cond'] = cond_info.get_text().strip()
+                        wind_direction_tag = \
+                            weather_details.find(class_="wind-stats")
+                        wind_speed_tag = weather_details.find("strong")
+                        if wind_direction_tag:
+                            weather_info['wind'] = wind_speed_tag.get_text()
 
         return weather_info
-
